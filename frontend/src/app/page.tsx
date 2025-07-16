@@ -166,34 +166,58 @@ export default function Home() {
   useEffect(() => {
     let unlistenFn: (() => void) | undefined;
     let transcriptCounter = 0;  // Counter for unique IDs
+    let isMounted = true;
 
     const setupListener = async () => {
       try {
         console.log('Setting up transcript listener...');
-        unlistenFn = await listen<TranscriptUpdate>('transcript-update', (event) => {
-          console.log('Received transcript update:', event.payload);
-          const newTranscript = {
-            id: `${Date.now()}-${transcriptCounter++}`,  // Combine timestamp with counter for uniqueness
-            text: event.payload.text,
-            timestamp: event.payload.timestamp,
-          };
-          setTranscripts(prev => {
-            // Check if this transcript already exists
-            const exists = prev.some(
-              t => t.text === event.payload.text && t.timestamp === event.payload.timestamp
-            );
-            if (exists) {
-              console.log('Duplicate transcript, skipping:', newTranscript);
-              return prev;
-            }
-            console.log('Adding new transcript:', newTranscript);
-            return [...prev, newTranscript];
+        
+        // Check if component is still mounted before setting up listener
+        if (!isMounted) return;
+
+        // Add a delay to ensure Tauri is fully initialized
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Check if Tauri is available
+        if (typeof window !== 'undefined' && window.__TAURI__) {
+          const unlisten = await listen<TranscriptUpdate>('transcript-update', (event) => {
+            console.log('Received transcript update:', event.payload);
+            const newTranscript = {
+              id: `${Date.now()}-${transcriptCounter++}`,  // Combine timestamp with counter for uniqueness
+              text: event.payload.text,
+              timestamp: event.payload.timestamp,
+            };
+            setTranscripts(prev => {
+              // Check if this transcript already exists
+              const exists = prev.some(
+                t => t.text === event.payload.text && t.timestamp === event.payload.timestamp
+              );
+              if (exists) {
+                console.log('Duplicate transcript, skipping:', newTranscript);
+                return prev;
+              }
+              console.log('Adding new transcript:', newTranscript);
+              return [...prev, newTranscript];
+            });
           });
-        });
-        console.log('Transcript listener setup complete');
+          
+          // Only set unlistenFn if component is still mounted
+          if (isMounted) {
+            unlistenFn = unlisten;
+            console.log('Transcript listener setup complete');
+          } else {
+            // Component unmounted during setup, clean up immediately
+            unlisten();
+          }
+        } else {
+          console.log('Tauri not available, skipping event listener setup');
+        }
       } catch (error) {
         console.error('Failed to setup transcript listener:', error);
-        alert('Failed to setup transcript listener. Check console for details.');
+        // Only show alert if component is still mounted and it's not a Tauri unavailable error
+        if (isMounted && !error.message?.includes('Tauri')) {
+          alert('Failed to setup transcript listener. Check console for details.');
+        }
       }
     };
 
@@ -202,9 +226,15 @@ export default function Home() {
 
     return () => {
       console.log('Cleaning up transcript listener...');
+      isMounted = false;
+      
       if (unlistenFn) {
-        unlistenFn();
-        console.log('Transcript listener cleaned up');
+        try {
+          unlistenFn();
+          console.log('Transcript listener cleaned up');
+        } catch (error) {
+          console.error('Error cleaning up transcript listener:', error);
+        }
       }
     };
   }, []);

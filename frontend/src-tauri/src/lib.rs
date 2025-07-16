@@ -807,6 +807,9 @@ pub fn run() {
     log::set_max_level(log::LevelFilter::Info);
     
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_shell::init())
         .setup(|_app| {
             log::info!("Application setup complete");
 

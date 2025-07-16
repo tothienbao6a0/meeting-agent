@@ -43,15 +43,15 @@ rm -rf .pnp.cjs
 rm -rf out
 
 echo "Installing dependencies..."
-pnpm install
+npm install
 
 # Build the Next.js application first
 echo "Building Next.js application..."
-pnpm run build
+npm run build
 
 # Set environment variables for the build
 
 echo "Building Tauri app..."
-pnpm run tauri build
+npm run tauri build
 sleep
 
