@@ -199,7 +199,8 @@ export default function Home() {
 
     return () => {
       console.log('Cleaning up transcript listener...');
-      if (unlistenFn) {
+      // Defensively unregister listener to prevent runtime errors during hot reloads or unmounts
+      if (unlistenFn && window.__TAURI_EVENT_PLUGIN_INTERNALS__ && typeof window.__TAURI_EVENT_PLUGIN_INTERNALS__.unregisterListener === 'function') {
         unlistenFn();
         console.log('Transcript listener cleaned up');
       }
@@ -763,13 +764,13 @@ export default function Home() {
   const isSummaryLoading = summaryStatus === 'processing' || summaryStatus === 'summarizing' || summaryStatus === 'regenerating';
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      <div className="flex flex-1 overflow-hidden">
+    <div className="flex flex-col h-screen bg-background p-6">
+      <div className="flex flex-1 overflow-hidden bg-card rounded-lg shadow-sm">
         {/* Left side - Transcript */}
-        <div className="w-1/2 min-w-[400px] border-r border-border bg-card flex flex-col relative p-6">
+        <div className="w-1/2 min-w-[400px] border-r border-border flex flex-col relative p-6">
           {/* Title area */}
-          <div className="mb-6">
-            <div className="flex flex-col space-y-3">
+          <div className="mb-8">
+            <div className="flex flex-col space-y-4">
               <div className="flex items-center">
                 <EditableTitle
                   title={meetingTitle}
@@ -779,7 +780,7 @@ export default function Home() {
                   onChange={handleTitleChange}
                 />
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <Button
                   onClick={handleCopyTranscript}
                   disabled={transcripts.length === 0}
@@ -838,13 +839,13 @@ export default function Home() {
           </div>
 
           {/* Transcript content */}
-          <div className="flex-1 overflow-y-auto pt-4 pb-32">
+          <div className="flex-1 overflow-y-auto pb-48">
             <TranscriptView transcripts={transcripts} />
           </div>
 
           {/* Recording controls */}
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10">
-            <div className="bg-card rounded-full shadow-lg flex items-center border border-border">
+          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="bg-card rounded-full shadow-lg flex items-center border border-border p-4">
               <RecordingControls
                 isRecording={isRecording}
                 onRecordingStop={() => handleRecordingStop2(true)}

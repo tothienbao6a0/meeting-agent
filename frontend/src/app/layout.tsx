@@ -22,12 +22,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${sourceSans3.variable} font-sans`}>
         <SidebarProvider>
-          <div className="titlebar h-8 w-full fixed top-0 left-0 bg-transparent" />
-          <div className="flex h-screen">
+          <div className="titlebar h-8 w-full fixed top-0 left-0 bg-transparent z-50" /> {/* Ensure titlebar is on top */}
+          <div className="flex h-screen pt-8"> {/* Add top padding to account for titlebar */}
             <Sidebar />
             <div className="flex-1 flex flex-col">
-              <header className="flex items-center px-6 py-5 border-b border-border min-h-fit">
-                <h1 className="text-2xl font-bold text-foreground flex-grow">AI Meeting Transcription and Note Taker</h1>
+              <header className="flex items-center px-6 py-4 border-b border-border h-[64px]"> {/* Changed min-h to explicit height */}
+                <h1 className="text-2xl font-bold text-foreground flex-grow">AI Meeting Transcription and Note Taker</h1> {/* Removed overflow and whitespace classes */}
               </header>
               <MainContent>{children}</MainContent>
             </div>
