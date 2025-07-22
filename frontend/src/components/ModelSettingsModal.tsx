@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Lock, Eye, EyeOff, X } from 'lucide-react'; // Import Lucide icons
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export interface ModelConfig {
   provider: 'ollama' | 'groq' | 'claude' | 'openai';
@@ -172,30 +176,29 @@ export function ModelSettingsModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+      <div className="bg-card rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Model Settings</h3>
-          <button
+          <h3 className="text-lg font-semibold text-foreground">Model Settings</h3>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setShowModelSettings(false)}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-muted-foreground hover:text-foreground"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+            <X className="h-5 w-5" />
+          </Button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Summarization Model
             </label>
             <div className="flex space-x-2">
-              <select
-                className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              <Select
                 value={modelConfig.provider}
-                onChange={(e) => {
-                  const provider = e.target.value as ModelConfig['provider'];
+                onValueChange={(value: string) => {
+                  const provider = value as ModelConfig['provider'];
                   setModelConfig({
                     ...modelConfig,
                     provider,
@@ -204,85 +207,89 @@ export function ModelSettingsModal({
                   fetchApiKey(provider);
                 }}
               >
-                <option value="claude">Claude</option>
-                <option value="groq">Groq</option>
-                <option value="ollama">Ollama</option>
-                <option value="openai">OpenAI</option>
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="claude">Claude</SelectItem>
+                  <SelectItem value="groq">Groq</SelectItem>
+                  <SelectItem value="ollama">Ollama</SelectItem>
+                  <SelectItem value="openai">OpenAI</SelectItem>
+                </SelectContent>
+              </Select>
 
-              <select
-                className="flex-1 px-3 py-2 text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              <Select
                 value={modelConfig.model}
-                onChange={(e) => setModelConfig((prev: ModelConfig) => ({ ...prev, model: e.target.value }))}
+                onValueChange={(value: string) => setModelConfig((prev: ModelConfig) => ({ ...prev, model: value }))}
               >
-                {modelOptions[modelConfig.provider].map(model => (
-                  <option key={model} value={model}>
-                    {model}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Select a model" />
+                </SelectTrigger>
+                <SelectContent>
+                  {modelOptions[modelConfig.provider].map(model => (
+                    <SelectItem key={model} value={model}>
+                      {model}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
           {requiresApiKey && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 API Key
               </label>
               <div className="relative">
-                <input
+                <Input
                   type={showApiKey ? "text" : "password"}
                   value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
                   disabled={isApiKeyLocked}
-                  className={`w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 pr-24 ${
-                    isApiKeyLocked ? 'bg-gray-100 cursor-not-allowed' : ''
+                  className={`pr-24 ${
+                    isApiKeyLocked ? 'bg-muted cursor-not-allowed' : ''
                   }`}
                   placeholder="Enter your API key"
                 />
                 {isApiKeyLocked && (
                   <div 
                     onClick={handleInputClick}
-                    className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-50 rounded-md cursor-not-allowed"
+                    className="absolute inset-0 flex items-center justify-center bg-muted bg-opacity-50 rounded-md cursor-not-allowed"
                   />
                     
                   
                 )}
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center space-x-2">
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     type="button"
                     onClick={() => setIsApiKeyLocked(!isApiKeyLocked)}
-                    className={`text-gray-500 hover:text-gray-700 transition-colors duration-200 ${
-                      isLockButtonVibrating ? 'animate-vibrate text-red-500' : ''
+                    className={`text-muted-foreground hover:text-foreground transition-colors duration-200 ${
+                      isLockButtonVibrating ? 'animate-vibrate text-destructive' : ''
                     }`}
                     title={isApiKeyLocked ? "Unlock to edit" : "Lock to prevent editing"}
                   >
                     {isApiKeyLocked ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
+                      <Lock className="h-5 w-5" />
                     ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                      </svg>
+                      <Lock className="h-5 w-5" /> // Consider using an `Unlock` icon here if available in lucide-react
                     )}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     type="button"
                     onClick={() => setShowApiKey(!showApiKey)}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-muted-foreground hover:text-foreground"
                   >
                     {showApiKey ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                      </svg>
+                      <EyeOff className="h-5 w-5" />
                     ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
+                      <Eye className="h-5 w-5" />
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -290,9 +297,9 @@ export function ModelSettingsModal({
 
           {modelConfig.provider === 'ollama' && (
             <div>
-              <h4 className="text-lg font-bold mb-4">Available Ollama Models</h4>
+              <h4 className="text-lg font-bold mb-4 text-foreground">Available Ollama Models</h4>
               {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div className="bg-destructive/10 border border-destructive/20 text-destructive-foreground px-4 py-3 rounded mb-4">
                   {error}
                 </div>
               )}
@@ -300,14 +307,14 @@ export function ModelSettingsModal({
                 {models.map((model) => (
                   <div 
                     key={model.id}
-                    className={`bg-white p-4 rounded-lg shadow cursor-pointer transition-colors ${
-                      modelConfig.model === model.name ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                    className={`bg-card p-4 rounded-lg shadow-sm cursor-pointer transition-colors border border-border ${
+                      modelConfig.model === model.name ? 'ring-2 ring-primary/20 bg-primary/10' : 'hover:bg-secondary/10'
                     }`}
                     onClick={() => setModelConfig((prev: ModelConfig) => ({ ...prev, model: model.name }))}
                   >
-                    <h3 className="font-bold">{model.name}</h3>
-                    <p className="text-gray-600">Size: {model.size}</p>
-                    <p className="text-gray-600">Modified: {model.modified}</p>
+                    <h3 className="font-bold text-foreground">{model.name}</h3>
+                    <p className="text-muted-foreground">Size: {model.size}</p>
+                    <p className="text-muted-foreground">Modified: {model.modified}</p>
                   </div>
                 ))}
               </div>
@@ -316,17 +323,17 @@ export function ModelSettingsModal({
         </div>
 
         <div className="mt-6 flex justify-end">
-          <button
+          <Button
             onClick={handleSave}
             disabled={isDoneDisabled}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+            className={`px-4 py-2 text-sm font-medium ${
               isDoneDisabled 
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-blue-600 hover:bg-blue-700'
+                ? 'bg-muted text-muted-foreground cursor-not-allowed' 
+                : 'bg-primary hover:bg-primary/90 text-primary-foreground'
             }`}
           >
             Done
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { BlockComponent } from './Block';
 import { EditableTitle } from '../EditableTitle';
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { Trash, Pencil } from 'lucide-react'; // Ensure Pencil is imported here for use with EditableTitle
 
 interface SectionProps {
   section: SectionType;
@@ -61,7 +62,7 @@ export const Section: React.FC<SectionProps> = ({
       transition={{ duration: 0.5 }}
       className="mb-8"
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 group">
         <EditableTitle
           title={section.title}
           isEditing={isEditingTitle}
@@ -73,9 +74,11 @@ export const Section: React.FC<SectionProps> = ({
         {onSectionDelete && (
           <button
             onClick={() => onSectionDelete(sectionKey)}
-            className="text-gray-400 hover:text-gray-600"
+            className="flex items-center text-destructive hover:bg-destructive/10 p-2 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+            title="Delete section"
           >
-            Delete
+            <Trash className="w-4 h-4 mr-1" />
+            <span>Delete</span>
           </button>
         )}
       </div>

@@ -17,11 +17,11 @@ export const TranscriptView: React.FC<TranscriptViewProps> = ({ transcripts }) =
   }, [transcripts]);
 
   return (
-    <div ref={containerRef} className="h-full overflow-y-auto px-4 py-2">
+    <div ref={containerRef} className="h-full overflow-y-auto pr-4 pt-2">
       {transcripts?.map((transcript) => (
-        <div key={transcript.id + Math.random().toString(36).substring(2, 9)} className="mb-3 p-2 bg-gray-50 rounded-lg">
-          <span className="text-xs text-gray-500 block mb-1">{transcript.timestamp}</span>
-          <p className="text-sm text-gray-800">{transcript.text}</p>
+        <div key={transcript.id + Math.random().toString(36).substring(2, 9)} className="mb-2 p-3 bg-secondary/10 rounded-md border border-border">
+          <span className="text-xs text-muted-foreground font-medium block mb-1">{transcript.timestamp}</span>
+          <p className="text-sm text-foreground">{transcript.text}</p>
         </div>
       ))}
     </div>

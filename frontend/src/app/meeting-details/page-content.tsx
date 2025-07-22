@@ -6,6 +6,8 @@ import { TranscriptView } from '@/components/TranscriptView';
 import { AISummary } from '@/components/AISummary';
 import { CurrentMeeting, useSidebar } from '@/components/Sidebar/SidebarProvider';
 import { ModelSettingsModal, ModelConfig } from '@/components/ModelSettingsModal';
+import { File, StickyNote } from 'lucide-react';
+import { Button } from "@/components/ui/button"; // Import Shadcn Button
 
 type SummaryStatus = 'idle' | 'processing' | 'summarizing' | 'regenerating' | 'completed' | 'error';
 
@@ -430,192 +432,76 @@ export default function PageContent({ meeting, summaryData }: { meeting: any, su
   const isSummaryLoading = summaryStatus === 'processing' || summaryStatus === 'summarizing' || summaryStatus === 'regenerating';
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left side - Transcript */}
-        <div className="w-1/3 min-w-[300px] border-r border-gray-200 bg-white flex flex-col relative">
-          {/* Title area */}
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex flex-col space-y-3">
-              <div className="flex items-center">
-                <EditableTitle
-                  title={meetingTitle}
-                  isEditing={isEditingTitle}
-                  onStartEditing={() => setIsEditingTitle(true)}
-                  onFinishEditing={() => {
-                    setIsEditingTitle(false);
-                    handleSaveMeetingTitle();
-                  }}
-                  onChange={handleTitleChange}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={handleCopyTranscript}
-                  disabled={transcripts?.length === 0}
-                  className={`px-3 py-2 border rounded-md transition-all duration-200 inline-flex items-center gap-2 shadow-sm ${
-                    transcripts?.length === 0
-                      ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed'
-                      : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 active:bg-blue-200'
-                  }`}
-                  title={transcripts?.length === 0 ? 'No transcript available' : 'Copy Transcript'}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V7.5l-3.75-3.612z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 3v3.75a.75.75 0 0 0 .75.75H18" />
-                  </svg>
-                  <span className="text-sm">Copy Transcript</span>
-                </button>
-                {transcripts?.length > 0 && (
-                  <>
-                    <button
-                      onClick={handleGenerateSummary}
-                      disabled={summaryStatus === 'processing'}
-                      className={`px-3 py-2 border rounded-md transition-all duration-200 inline-flex items-center gap-2 shadow-sm ${
-                        summaryStatus === 'processing'
-                          ? 'bg-yellow-50 border-yellow-200 text-yellow-700'
-                          : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:border-green-300 active:bg-green-200'
-                      }`}
-                      title={
-                        summaryStatus === 'processing'
-                          ? 'Generating summary...'
-                          : 'Generate AI Summary'
-                      }
-                    >
-                      {summaryStatus === 'processing' ? (
-                        <>
-                          <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          <span className="text-sm">Processing...</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                          <span className="text-sm">Generate Note</span>
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setShowModelSettings(true)}
-                      className="px-3 py-2 border rounded-md transition-all duration-200 inline-flex items-center gap-2 shadow-sm bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300 active:bg-gray-200"
-                      title="Model Settings"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Transcript content */}
-          <div className="flex-1 overflow-y-auto pb-32">
-            <TranscriptView transcripts={transcripts} />
-          </div>
-        </div>
-
-        {/* Right side - AI Summary */}
-        <div className="flex-1 overflow-y-auto bg-white">
-          {isSummaryLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-                <p className="text-gray-600">Generating AI Summary...</p>
-              </div>
-            </div>
-          ) : transcripts?.length > 0 && (
-            <div className="max-w-4xl mx-auto p-6">
-              {summaryResponse && (
-                <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-4 max-h-1/3 overflow-y-auto">
-                  <h3 className="text-lg font-semibold mb-2">Meeting Summary</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white p-4 rounded-lg shadow-sm">
-                      <h4 className="font-medium mb-1">Key Points</h4>
-                      <ul className="list-disc pl-4">
-                        {summaryResponse.summary.key_points.blocks.map((block, i) => (
-                          <li key={i} className="text-sm">{block.content}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm mt-4">
-                      <h4 className="font-medium mb-1">Action Items</h4>
-                      <ul className="list-disc pl-4">
-                        {summaryResponse.summary.action_items.blocks.map((block, i) => (
-                          <li key={i} className="text-sm">{block.content}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm mt-4">
-                      <h4 className="font-medium mb-1">Decisions</h4>
-                      <ul className="list-disc pl-4">
-                        {summaryResponse.summary.decisions.blocks.map((block, i) => (
-                          <li key={i} className="text-sm">{block.content}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm mt-4">
-                      <h4 className="font-medium mb-1">Main Topics</h4>
-                      <ul className="list-disc pl-4">
-                        {summaryResponse.summary.main_topics.blocks.map((block, i) => (
-                          <li key={i} className="text-sm">{block.content}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                  {summaryResponse.raw_summary ? (
-                    <div className="mt-4">
-                      <h4 className="font-medium mb-1">Full Summary</h4>
-                      <p className="text-sm whitespace-pre-wrap">{summaryResponse.raw_summary}</p>
-                    </div>
-                  ) : null}
-                </div>
-              )}
-              <div className="flex-1 overflow-y-auto p-4">
-                <AISummary 
-                  summary={aiSummary} 
-                  status={summaryStatus} 
-                  error={summaryError}
-                  onSummaryChange={(newSummary) => setAiSummary(newSummary)}
-                  onRegenerateSummary={() => {
-                    handleRegenerateSummary();
-                  }}
-                  meeting={{
-                    id: meeting.id,
-                    title: meetingTitle,
-                    created_at: meeting.created_at
-                  }}
-                />
-              </div>
-              {summaryStatus !== 'idle' && (
-                <div className={`mt-4 p-4 rounded-lg ${
-                  summaryStatus === 'error' ? 'bg-red-100 text-red-700' :
-                  summaryStatus === 'completed' ? 'bg-green-100 text-green-700' :
-                  'bg-blue-100 text-blue-700'
-                }`}>
-                  <p className="text-sm font-medium">{getSummaryStatusMessage(summaryStatus)}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Model Settings Modal */}
-        {showModelSettings && (
-          <ModelSettingsModal
+    <div className="bg-card p-8 rounded-lg shadow-sm mb-6">
+      <div className="flex items-center justify-between mb-6">
+        <EditableTitle
+          title={meetingTitle}
+          isEditing={isEditingTitle}
+          onStartEditing={() => setIsEditingTitle(true)}
+          onFinishEditing={handleSaveMeetingTitle}
+          onChange={setMeetingTitle}
+        />
+        <div className="flex space-x-3">
+          <Button 
+            variant="outline"
+            onClick={handleCopyTranscript}
+            className="flex items-center px-4 py-2 text-sm font-semibold text-secondary-foreground bg-white border border-border rounded-md hover:bg-secondary/10 transition-colors"
+          >
+            <File className="w-4 h-4 mr-2" />
+            Copy Transcript
+          </Button>
+          <Button 
+            variant="default"
+            onClick={generateAISummary}
+            disabled={summaryStatus === 'processing' || summaryStatus === 'summarizing' || summaryStatus === 'regenerating'}
+            className={`flex items-center px-4 py-2 text-sm font-semibold text-primary-foreground rounded-md transition-colors ${summaryStatus === 'processing' || summaryStatus === 'summarizing' || summaryStatus === 'regenerating' ? 'bg-primary/70 cursor-not-allowed' : 'bg-primary hover:bg-primary/90'}`}
+          >
+            {summaryStatus === 'processing' || summaryStatus === 'summarizing' || summaryStatus === 'regenerating' ? (
+              <>
+                <span className="loading-spinner mr-2"></span> Generating Note...
+              </>
+            ) : (
+              <>
+                <StickyNote className="w-4 h-4 mr-2" />
+                Generate Note
+              </>
+            )}
+          </Button>
+          <ModelSettingsModal 
             showModelSettings={showModelSettings}
             setShowModelSettings={setShowModelSettings}
-            modelConfig={modelConfig}
-            setModelConfig={setModelConfig}
             onSave={handleSaveModelConfig}
+            modelConfig={modelConfig}
+            setModelConfig={setModelConfig} // Added missing prop
           />
-        )}
+        </div>
+      </div>
+
+      {summaryStatus === 'processing' || summaryStatus === 'summarizing' || summaryStatus === 'regenerating' ? (
+        <p className="text-center text-gray-500 mt-4">{getSummaryStatusMessage(summaryStatus)}</p>
+      ) : summaryError ? (
+        <div className="text-red-500 text-center mt-4">Error: {summaryError}</div>
+      ) : null}
+
+      <div className="grid grid-cols-2 gap-8">
+        <div>
+          <h2 className="text-xl font-bold text-foreground mb-4">Transcription with timestamps</h2>
+          <TranscriptView transcripts={transcripts} />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-foreground mb-4">Summary of the meeting</h2>
+          {aiSummary ? (
+            <AISummary 
+              summary={aiSummary}
+              status={summaryStatus}
+              error={summaryError}
+              onSummaryChange={setAiSummary}
+              onRegenerateSummary={generateAISummary}
+            />
+          ) : showSummary ? (
+            <p className="text-gray-500">No summary generated yet. Click "Generate Note" to create one.</p>
+          ) : null}
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { Pencil, Trash } from 'lucide-react'; // Import Lucide icons
 
 interface EditableTitleProps {
   title: string;
@@ -35,13 +36,13 @@ export const EditableTitle: React.FC<EditableTitleProps> = ({
       onChange={(e) => onChange(e.target.value)}
       onBlur={onFinishEditing}
       onKeyDown={handleKeyDown}
-      className="text-2xl font-bold bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
+      className="text-2xl font-bold bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-primary rounded px-1 text-foreground"
       autoFocus
     />
   ) : (
     <div className="group flex items-center space-x-2">
       <h1
-        className="text-2xl font-bold cursor-pointer hover:bg-gray-50 rounded px-1"
+        className="text-2xl font-bold cursor-pointer hover:bg-secondary/10 rounded px-1 text-foreground"
         onClick={onStartEditing}
       >
         {title}
@@ -49,44 +50,18 @@ export const EditableTitle: React.FC<EditableTitleProps> = ({
       <div className="flex space-x-1">
         <button 
           onClick={onStartEditing}
-          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-gray-100 rounded"
+          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-secondary/10 rounded"
           title="Edit section title"
         >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="16" 
-            height="16" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-          </svg>
+          <Pencil className="w-4 h-4 text-gray-600" /> {/* Replaced SVG with Lucide icon */}
         </button>
         {onDelete && (
           <button 
             onClick={onDelete}
-            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-gray-100 rounded text-red-600"
+            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-destructive/10 rounded text-destructive"
             title="Delete section"
           >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="16" 
-              height="16" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
-              <path d="M3 6h18" />
-              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-            </svg>
+            <Trash className="w-4 h-4" /> {/* Replaced SVG with Lucide icon */}
           </button>
         )}
       </div>

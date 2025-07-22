@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useSidebar } from './SidebarProvider';
 import type { CurrentMeeting } from '@/components/Sidebar/SidebarProvider';
 import { ConfirmationModal } from '../ConfirmationModel/confirmation-modal';
+import { Button } from "@/components/ui/button"; // Import Shadcn Button
 
 interface SidebarItem {
   id: string;
@@ -64,33 +65,40 @@ const Sidebar: React.FC = () => {
 
     return (
       <div className="flex flex-col items-center space-y-4 mt-4">
-        {/* <button
-          onClick={() => router.push('/')}
-          className="p-2 hover:bg-gray-100 rounded-md transition-colors"
-          title="Home"
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            if (isCollapsed) toggleCollapse();
+            setCurrentMeeting({ id: 'intro-call', title: '+ New Call' });
+            router.push('/');
+          }}
+          title="New Call"
         >
-          <Home className="w-5 h-5 text-gray-600" />
-        </button> */}
-        <button
+          <Home className="w-5 h-5 text-primary" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => {
             if (isCollapsed) toggleCollapse();
             toggleFolder('meetings');
           }}
-          className="p-2 hover:bg-gray-100 rounded-md transition-colors"
           title="Meetings"
         >
           <Calendar className="w-5 h-5 text-gray-600" />
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => {
             if (isCollapsed) toggleCollapse();
             toggleFolder('notes');
           }}
-          className="p-2 hover:bg-gray-100 rounded-md transition-colors"
           title="Notes"
         >
           <StickyNote className="w-5 h-5 text-gray-600" />
-        </button>
+        </Button>
       </div>
     );
   };
@@ -107,8 +115,8 @@ const Sidebar: React.FC = () => {
     return (
       <div key={item.id}>
         <div
-          className={`flex items-center px-2 py-1 hover:bg-gray-100 text-sm group ${
-            isActive ? 'bg-gray-100 font-medium' : ''
+          className={`flex items-center px-3 py-2 hover:bg-secondary/20 text-xs group ${
+            isActive ? 'bg-secondary/50' : ''
           } ${
             isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
           }`}
@@ -132,33 +140,36 @@ const Sidebar: React.FC = () => {
           {item.type === 'folder' ? (
             <>
               {item.id === 'meetings' ? (
-                <Calendar className="w-4 h-4 mr-2" />
+                <Calendar className="w-4 h-4 mr-2 text-gray-600" />
               ) : item.id === 'notes' ? (
-                <StickyNote className="w-4 h-4 mr-2" />
+                <StickyNote className="w-4 h-4 mr-2 text-gray-600" />
               ) : null}
               {isExpanded ? (
-                <ChevronDown className="w-4 h-4 mr-1" />
+                <ChevronDown className="w-4 h-4 mr-1 text-gray-600" />
               ) : (
-                <ChevronRight className="w-4 h-4 mr-1" />
+                <ChevronRight className="w-4 h-4 mr-1 text-gray-600" />
               )}
-              {item.title}
+              <span className="text-gray-600">{item.title}</span>
             </>
           ) : (
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center">
-                <File className={`w-4 h-4 mr-1 ${isDisabled ? 'text-gray-400' : ''}`} />
-                <span className={isDisabled ? 'text-gray-400' : ''}>{item.title}</span>
+                <File className={`w-4 h-4 mr-1 ${isDisabled ? 'text-gray-400' : 'text-gray-600'}`} />
+                <span className={isDisabled ? 'text-gray-400' : 'text-gray-700'}>{item.title}</span>
               </div>
               {isMeetingItem && !isDisabled && (
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={(e) => {
                     e.stopPropagation();
                     setDeleteModalState({ isOpen: true, itemId: item.id });
                   }}
-                  className="opacity-0 group-hover:opacity-100 hover:text-red-600 p-1 rounded-md hover:bg-red-50"
+                  className="opacity-0 group-hover:opacity-100 hover:text-destructive p-1 rounded-md"
+                  title="Delete Meeting"
                 >
                   <Delete className="w-4 h-4" />
-                </button>
+                </Button>
               )}
             </div>
           )}
@@ -175,63 +186,55 @@ const Sidebar: React.FC = () => {
   return (
     <div className="fixed top-0 left-0 h-screen z-40">
       {/* Floating collapse button */}
-      <button
-        onClick={toggleCollapse}
-        className="absolute -right-6 top-20 z-50 p-1 bg-white hover:bg-gray-100 rounded-full shadow-lg border"
-        style={{ transform: 'translateX(50%)' }}
-      >
-        {isCollapsed ? (
-          <ChevronRightCircle className="w-6 h-6" />
-        ) : (
-          <ChevronLeftCircle className="w-6 h-6" />
-        )}
-      </button>
-
+      {/* Removed as per SageSure UI */}
+      
       <div 
-        className={`h-screen bg-white border-r flex flex-col transition-all duration-300 ${
-          isCollapsed ? 'w-16' : 'w-64'
+        className={`h-screen bg-background border-r flex flex-col transition-all duration-300 ${
+          isCollapsed ? 'w-16' : 'w-56'
         }`}
       >
         {/* Header with traffic light spacing */}
-        <div className="h-16 flex items-center border-b">
-          {/* Traffic light spacing */}
-          <div className="w-20 h-16" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties} />
+        <div className="h-12 flex items-center border-b border-border">
+          {/* Traffic light spacing placeholder */}
+          <div className="w-20 h-12" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties} />
           
-          {/* Title container */}
-          <div className="flex-1">
-            {!isCollapsed && (
-              <h1 className="font-semibold text-sm">Meetily</h1>
-            )}
-          </div>
+          {/* Removed Meetily Title */}
+          <div className="flex-1"></div>
         </div>
 
         {/* Main content */}
-        <div className="flex-1 overflow-y-auto">
-          {/* {!isCollapsed && (
-            <div className="p-2">
-              <button
-                onClick={() => router.push('/')}
-                className="w-full flex items-center px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+        <div className="flex-1 overflow-y-auto pt-4">
+          {!isCollapsed && (
+            <div className="px-3 pb-2">
+              <Button
+                variant="default"
+                className="w-full flex items-center justify-center px-4 py-2 text-sm font-bold bg-white border border-primary text-primary rounded-md shadow-sm hover:bg-primary/10 transition-colors"
+                onClick={() => {
+                  if (isCollapsed) toggleCollapse();
+                  setCurrentMeeting({ id: 'intro-call', title: '+ New Call' });
+                  router.push('/');
+                }}
               >
                 <Home className="w-4 h-4 mr-2" />
-                <span>Home</span>
-              </button>
+                <span>+ New Call</span>
+              </Button>
             </div>
-          )} */}
+          )}
           {renderCollapsedIcons()}
           {sidebarItems.map(item => renderItem(item))}
         </div>
 
         {/* Footer */}
         {!isCollapsed && (
-          <div className="p-4 border-t">
-            <button 
+          <div className="p-4 border-t border-border">
+            <Button 
+              variant="ghost"
+              className="w-full flex items-center px-3 py-2 text-sm text-gray-600 rounded-md hover:bg-secondary/20"
               onClick={() => router.push('/settings')}
-              className="w-full flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
             >
-              <Settings className="w-4 h-4 mr-3" />
+              <Settings className="w-4 h-4 mr-3 text-gray-600" />
               <span>Settings</span>
-            </button>
+            </Button>
           </div>
         )}
       </div>

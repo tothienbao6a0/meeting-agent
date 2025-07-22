@@ -5,6 +5,9 @@ import { Summary, Block } from '@/types';
 import { Section } from './Section';
 import { EditableTitle } from '../EditableTitle';
 import { ExclamationTriangleIcon, CheckCircleIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
+import { Undo, Redo, Plus, Copy, RotateCcw } from 'lucide-react'; // Import new icons
+import { Button } from "@/components/ui/button"; // Import Shadcn Button
+import { Trash } from 'lucide-react'; // Import Trash icon for context menu
 
 interface Props {
   summary: Summary | null;
@@ -618,68 +621,32 @@ export const AISummary = ({ summary, status, error, onSummaryChange, onRegenerat
   return (
     <div className="relative">
       <div className="flex justify-end mb-4 space-x-2">
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={handleUndo}
           disabled={currentHistoryIndex === 0}
-          className="p-2 hover:bg-gray-100 rounded disabled:opacity-50"
           title="Undo"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M3 7v6h6" />
-            <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13" />
-          </svg>
-        </button>
-        <button
+          <Undo className="w-4 h-4 text-gray-600" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={handleRedo}
           disabled={currentHistoryIndex === history.length - 1}
-          className="p-2 hover:bg-gray-100 rounded disabled:opacity-50"
           title="Redo"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M21 7v6h-6" />
-            <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7" />
-          </svg>
-        </button>
-        <button
+          <Redo className="w-4 h-4 text-gray-600" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={handleAddSection}
-          className="p-2 hover:bg-gray-100 rounded"
           title="Add new section"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 5v14" />
-            <path d="M5 12h14" />
-          </svg>
-        </button>
+          <Plus className="w-4 h-4 text-gray-600" />
+        </Button>
       </div>
       
       {selectedBlocks.length > 1 && (
@@ -703,39 +670,42 @@ export const AISummary = ({ summary, status, error, onSummaryChange, onRegenerat
           }}
           onClick={e => e.stopPropagation()}
         >
-          <button
-            className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-2"
+          <Button
+            variant="ghost"
+            className="w-full justify-start px-4 py-2 text-left hover:bg-secondary/10 flex items-center space-x-2"
             onClick={handleCopyBlocks}
           >
-            <span className="text-gray-600">📋</span>
+            <Copy className="w-4 h-4 text-gray-600" />
             <span>Copy {selectedBlocks.length > 1 ? `${selectedBlocks.length} blocks` : 'block'}</span>
-          </button>
-          <button
-            className="w-full px-4 py-2 text-left hover:bg-gray-100 text-red-600 flex items-center space-x-2"
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start px-4 py-2 text-left hover:bg-destructive/10 text-destructive flex items-center space-x-2"
             onClick={handleDeleteBlocks}
           >
-            <span>🗑️</span>
+            <Trash className="w-4 h-4" />
             <span>Delete {selectedBlocks.length > 1 ? `${selectedBlocks.length} blocks` : 'block'}</span>
-          </button>
+          </Button>
         </div>
       )}
 
       <div className="flex items-center space-x-2 mb-6">
         <span className="text-2xl">✨</span>
-        <h2 className="text-2xl font-semibold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold text-foreground">
           AI Enhanced Summary
         </h2>
         <div className="ml-auto flex space-x-2">
-          <button
+          <Button
+            variant="outline"
             onClick={() => {
               const markdown = convertToMarkdown();
               navigator.clipboard.writeText(markdown);
             }}
-            className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md flex items-center space-x-1"
+            className="flex items-center px-4 py-2 text-sm font-semibold text-secondary-foreground"
           >
-            <span>📋</span>
+            <Copy className="w-4 h-4 mr-2" />
             <span>Copy as Markdown</span>
-          </button>
+          </Button>
           {/* <button
             onClick={handleExport}
             className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md flex items-center space-x-1"
@@ -743,16 +713,15 @@ export const AISummary = ({ summary, status, error, onSummaryChange, onRegenerat
             <span>📝</span>
             <span>Export as Markdown</span>
           </button> */}
-          <button
+          <Button
+            variant="outline"
             onClick={onRegenerateSummary}
-            className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md flex items-center space-x-1"
+            className="flex items-center px-4 py-2 text-sm font-semibold text-secondary-foreground"
             title="Regenerate Summary"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span className="ml-1">Regenerate</span>
-          </button>
+            <RotateCcw className="w-4 h-4 mr-2" />
+            <span className="ml-0">Regenerate</span>
+          </Button>
         </div>
       </div>
 
