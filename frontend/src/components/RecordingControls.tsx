@@ -5,6 +5,7 @@ import { appDataDir } from '@tauri-apps/api/path';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { Play, Pause, Square, Mic } from 'lucide-react';
 import { ProcessRequest, SummaryResponse } from '@/types/summary';
+import { Button } from "@/components/ui/button"; // Import Shadcn Button
 
 interface RecordingControlsProps {
   isRecording: boolean;
@@ -190,55 +191,66 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
           <>
             {showPlayback ? (
               <>
-                <button
+                <Button
+                  size="icon"
                   onClick={handleStartRecording}
-                  className="w-10 h-10 flex items-center justify-center bg-red-500 rounded-full text-white hover:bg-red-600 transition-colors"
+                  className="w-10 h-10 flex items-center justify-center bg-primary rounded-full text-primary-foreground hover:bg-primary/90 transition-colors"
+                  title="Start New Recording"
                 >
                   <Mic size={16} />
-                </button>
+                </Button>
 
-                <div className="w-px h-6 bg-gray-200 mx-1" />
+                <div className="w-px h-6 bg-border mx-1" />
 
                 <div className="flex items-center space-x-1 mx-2">
-                  <div className="text-sm text-gray-600 min-w-[40px]">
+                  <div className="text-sm text-muted-foreground min-w-[40px]">
                     {formatTime(currentTime)}
                   </div>
                   <div 
-                    className="relative w-24 h-1 bg-gray-200 rounded-full"
+                    className="relative w-24 h-1 bg-muted rounded-full"
                   >
                     <div 
-                      className="absolute h-full bg-blue-500 rounded-full" 
+                      className="absolute h-full bg-primary rounded-full" 
                       style={{ width: `${progress}%` }}
                     />
                   </div>
-                  <div className="text-sm text-gray-600 min-w-[40px]">
+                  <div className="text-sm text-muted-foreground min-w-[40px]">
                     {formatTime(duration)}
                   </div>
                 </div>
 
-                <button 
-                  className="w-10 h-10 flex items-center justify-center bg-gray-300 rounded-full text-white cursor-not-allowed"
+                <Button 
+                  size="icon"
+                  className="w-10 h-10 flex items-center justify-center bg-muted rounded-full text-muted-foreground cursor-not-allowed"
                   disabled
+                  title="Play (Not implemented)"
                 >
                   <Play size={16} />
-                </button>
+                </Button>
               </>
             ) : (
               <>
-                <button
+                <Button
+                  size="lg"
                   onClick={isRecording ? 
                     (isStopping ? cancelStopRecording : handleStopRecording) : 
                     handleStartRecording}
                   disabled={isStarting || isProcessing}
-                  className={`w-12 h-12 flex items-center justify-center ${
-                    isStarting || isProcessing ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-600'
-                  } rounded-full text-white transition-colors relative`}
+                  className={`w-14 h-14 flex items-center justify-center rounded-full text-primary-foreground relative transition-colors
+                    ${isStarting || isProcessing 
+                      ? 'bg-muted cursor-not-allowed' 
+                      : isRecording 
+                        ? 'bg-destructive hover:bg-destructive/90' // Red for stopping
+                        : 'bg-primary hover:bg-primary/90' // Green for starting
+                    }
+                  `}
+                  title={isRecording ? (isStopping ? "Cancel Stopping" : "Stop Recording") : "Start Recording"}
                 >
                   {isRecording ? (
                     <>
                       <Square size={20} />
                       {isStopping && (
-                        <div className="absolute -top-8 text-red-500 font-medium">
+                        <div className="absolute -top-6 text-destructive font-medium text-xs">
                           {stopCountdown > 0 ? `${stopCountdown}s` : 'Stopping...'}
                         </div>
                       )}
@@ -246,13 +258,13 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
                   ) : (
                     <Mic size={20} />
                   )}
-                </button>
+                </Button>
 
                 <div className="flex items-center space-x-1 mx-4">
                   {barHeights.map((height, index) => (
                     <div
                       key={index}
-                      className="w-1 bg-red-500 rounded-full transition-all duration-200"
+                      className="w-1 bg-primary rounded-full transition-all duration-200"
                       style={{
                         height: isRecording ? height : '4px',
                       }}
