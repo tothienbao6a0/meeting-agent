@@ -26,9 +26,7 @@ export default function RootLayout({
           <div className="flex h-screen pt-8"> {/* Add top padding to account for titlebar */}
             <Sidebar />
             <div className="flex-1 flex flex-col">
-              <header className="flex items-center px-6 py-4 border-b border-border h-[64px]"> {/* Changed min-h to explicit height */}
-                <h1 className="text-2xl font-bold text-foreground flex-grow">AI Meeting Transcription and Note Taker</h1> {/* Removed overflow and whitespace classes */}
-              </header>
+             
               <MainContent>{children}</MainContent>
             </div>
           </div>
