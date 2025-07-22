@@ -689,12 +689,14 @@ export const AISummary = ({ summary, status, error, onSummaryChange, onRegenerat
         </div>
       )}
 
-      <div className="flex items-center space-x-2 mb-6">
-        <span className="text-2xl">✨</span>
-        <h2 className="text-2xl font-bold text-foreground">
-          AI Enhanced Summary
-        </h2>
-        <div className="ml-auto flex space-x-2">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-2 flex-shrink-0">
+          <span className="text-2xl">✨</span>
+          <h2 className="text-2xl font-bold text-foreground whitespace-nowrap">
+            AI Enhanced Summary
+          </h2>
+        </div>
+        <div className="flex space-x-2 ml-4 md:ml-auto">
           <Button
             variant="outline"
             onClick={() => {

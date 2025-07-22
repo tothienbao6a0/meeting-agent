@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import { Pencil, Trash } from 'lucide-react'; // Import Lucide icons
+import { Button } from '@/components/ui/button'; // Import Shadcn Button
 
 interface EditableTitleProps {
   title: string;
@@ -42,27 +43,31 @@ export const EditableTitle: React.FC<EditableTitleProps> = ({
   ) : (
     <div className="group flex items-center space-x-2">
       <h1
-        className="text-2xl font-bold cursor-pointer hover:bg-secondary/10 rounded px-1 text-foreground"
+        className="text-xl font-bold cursor-pointer hover:bg-secondary/10 rounded px-2 py-1 text-foreground"
         onClick={onStartEditing}
       >
         {title}
       </h1>
       <div className="flex space-x-1">
-        <button 
+        <Button 
+          variant="ghost"
+          size="icon"
           onClick={onStartEditing}
           className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-secondary/10 rounded"
           title="Edit section title"
         >
-          <Pencil className="w-4 h-4 text-gray-600" /> {/* Replaced SVG with Lucide icon */}
-        </button>
+          <Pencil className="w-4 h-4 text-gray-600" />
+        </Button>
         {onDelete && (
-          <button 
+          <Button 
+            variant="ghost"
+            size="icon"
             onClick={onDelete}
             className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-destructive/10 rounded text-destructive"
             title="Delete section"
           >
-            <Trash className="w-4 h-4" /> {/* Replaced SVG with Lucide icon */}
-          </button>
+            <Trash className="w-4 h-4" />
+          </Button>
         )}
       </div>
     </div>

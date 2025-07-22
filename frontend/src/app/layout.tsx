@@ -26,11 +26,8 @@ export default function RootLayout({
           <div className="flex h-screen">
             <Sidebar />
             <div className="flex-1 flex flex-col">
-              <header className="flex items-center px-6 py-4 border-b border-border">
-                <div className="relative w-[150px] h-[40px]"> {/* Adjusted dimensions for testing */}
-                  <Image src="/Website_Logo.jpeg" alt="SageSure Company Logo" fill={true} objectFit="contain" />
-                </div>
-                <h1 className="text-2xl font-bold ml-4 text-foreground">AI Meeting Transcription and Note Taker</h1>
+              <header className="flex items-center px-6 py-5 border-b border-border min-h-fit">
+                <h1 className="text-2xl font-bold text-foreground flex-grow">AI Meeting Transcription and Note Taker</h1>
               </header>
               <MainContent>{children}</MainContent>
             </div>

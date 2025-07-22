@@ -6,7 +6,7 @@ import { TranscriptView } from '@/components/TranscriptView';
 import { AISummary } from '@/components/AISummary';
 import { CurrentMeeting, useSidebar } from '@/components/Sidebar/SidebarProvider';
 import { ModelSettingsModal, ModelConfig } from '@/components/ModelSettingsModal';
-import { File, StickyNote } from 'lucide-react';
+import { File, StickyNote, Settings } from 'lucide-react';
 import { Button } from "@/components/ui/button"; // Import Shadcn Button
 
 type SummaryStatus = 'idle' | 'processing' | 'summarizing' | 'regenerating' | 'completed' | 'error';
@@ -432,8 +432,8 @@ export default function PageContent({ meeting, summaryData }: { meeting: any, su
   const isSummaryLoading = summaryStatus === 'processing' || summaryStatus === 'summarizing' || summaryStatus === 'regenerating';
 
   return (
-    <div className="bg-card p-8 rounded-lg shadow-sm mb-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-card p-6 rounded-lg shadow-sm h-full flex flex-col">
+      <div className="flex items-start justify-between mb-8">
         <EditableTitle
           title={meetingTitle}
           isEditing={isEditingTitle}
@@ -441,11 +441,11 @@ export default function PageContent({ meeting, summaryData }: { meeting: any, su
           onFinishEditing={handleSaveMeetingTitle}
           onChange={setMeetingTitle}
         />
-        <div className="flex space-x-3">
+        <div className="flex space-x-3 mt-1">
           <Button 
             variant="outline"
             onClick={handleCopyTranscript}
-            className="flex items-center px-4 py-2 text-sm font-semibold text-secondary-foreground bg-white border border-border rounded-md hover:bg-secondary/10 transition-colors"
+            className="flex items-center px-4 py-2 text-sm font-semibold text-secondary-foreground bg-card border border-border rounded-md hover:bg-secondary/10 transition-colors"
           >
             <File className="w-4 h-4 mr-2" />
             Copy Transcript
@@ -453,10 +453,10 @@ export default function PageContent({ meeting, summaryData }: { meeting: any, su
           <Button 
             variant="default"
             onClick={generateAISummary}
-            disabled={summaryStatus === 'processing' || summaryStatus === 'summarizing' || summaryStatus === 'regenerating'}
-            className={`flex items-center px-4 py-2 text-sm font-semibold text-primary-foreground rounded-md transition-colors ${summaryStatus === 'processing' || summaryStatus === 'summarizing' || summaryStatus === 'regenerating' ? 'bg-primary/70 cursor-not-allowed' : 'bg-primary hover:bg-primary/90'}`}
+            disabled={isSummaryLoading}
+            className={`flex items-center px-4 py-2 text-sm font-semibold text-primary-foreground rounded-md transition-colors ${isSummaryLoading ? 'bg-primary/70 cursor-not-allowed' : 'bg-primary hover:bg-primary/90'}`}
           >
-            {summaryStatus === 'processing' || summaryStatus === 'summarizing' || summaryStatus === 'regenerating' ? (
+            {isSummaryLoading ? (
               <>
                 <span className="loading-spinner mr-2"></span> Generating Note...
               </>
@@ -466,6 +466,15 @@ export default function PageContent({ meeting, summaryData }: { meeting: any, su
                 Generate Note
               </>
             )}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setShowModelSettings(true)}
+            className="flex items-center px-4 py-2 text-sm font-semibold text-secondary-foreground bg-card border border-border rounded-md hover:bg-secondary/10 transition-colors"
+            title="Model Settings"
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Model Settings
           </Button>
           <ModelSettingsModal 
             showModelSettings={showModelSettings}
@@ -477,19 +486,22 @@ export default function PageContent({ meeting, summaryData }: { meeting: any, su
         </div>
       </div>
 
-      {summaryStatus === 'processing' || summaryStatus === 'summarizing' || summaryStatus === 'regenerating' ? (
-        <p className="text-center text-gray-500 mt-4">{getSummaryStatusMessage(summaryStatus)}</p>
+      {isSummaryLoading ? (
+        <p className="text-center text-muted-foreground mt-4">{getSummaryStatusMessage(summaryStatus)}</p>
       ) : summaryError ? (
-        <div className="text-red-500 text-center mt-4">Error: {summaryError}</div>
+        <div className="text-destructive text-center mt-4">Error: {summaryError}</div>
       ) : null}
 
-      <div className="grid grid-cols-2 gap-8">
-        <div>
-          <h2 className="text-xl font-bold text-foreground mb-4">Transcription with timestamps</h2>
-          <TranscriptView transcripts={transcripts} />
+      <div className="flex-1 grid grid-cols-2 gap-8 ">
+        <div className="flex flex-col border-r border-border pr-8 pt-4">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Transcription with timestamps</h2>
+          <div className="flex-1 overflow-y-auto pl-2">
+            <TranscriptView transcripts={transcripts} />
+          </div>
         </div>
-        <div>
-          <h2 className="text-xl font-bold text-foreground mb-4">Summary of the meeting</h2>
+        <div className="flex flex-col pl-8 pt-4">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Summary of the meeting</h2>
+          <div className="flex-1 overflow-y-auto pl-2">
           {aiSummary ? (
             <AISummary 
               summary={aiSummary}
@@ -497,10 +509,12 @@ export default function PageContent({ meeting, summaryData }: { meeting: any, su
               error={summaryError}
               onSummaryChange={setAiSummary}
               onRegenerateSummary={generateAISummary}
+              meeting={meeting}
             />
           ) : showSummary ? (
-            <p className="text-gray-500">No summary generated yet. Click "Generate Note" to create one.</p>
+            <p className="text-muted-foreground">No summary generated yet. Click "Generate Note" to create one.</p>
           ) : null}
+          </div>
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { useSidebar } from './SidebarProvider';
 import type { CurrentMeeting } from '@/components/Sidebar/SidebarProvider';
 import { ConfirmationModal } from '../ConfirmationModel/confirmation-modal';
 import { Button } from "@/components/ui/button"; // Import Shadcn Button
+import Image from 'next/image'; // Import Image component
 
 interface SidebarItem {
   id: string;
@@ -200,6 +201,15 @@ const Sidebar: React.FC = () => {
           
           {/* Removed Meetily Title */}
           <div className="flex-1"></div>
+        </div>
+
+        {/* SageSure Logo at the top of the sidebar */}
+        <div className="p-4 border-b border-border flex items-center justify-center">
+          {isCollapsed ? (
+            <Image src="/Website_Logo.jpeg" alt="SageSure Logo" width={40} height={40} objectFit="contain" />
+          ) : (
+            <Image src="/Website_Logo.jpeg" alt="SageSure Logo" width={150} height={40} objectFit="contain" />
+          )}
         </div>
 
         {/* Main content */}
